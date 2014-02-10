@@ -132,6 +132,24 @@ status "Building runtime environment"
 mkdir -p $build_dir/.profile.d
 echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\";" > $build_dir/.profile.d/nodejs.sh
 
+# Check and run Grunt
+(
+  if [ -f $build_dir/Gulpfile.js ]; then
+    # get the env vars
+    if [ -d "$env_dir" ]; then
+      status "Exporting config vars to environment"
+      export_env_dir $env_dir
+    fi
+
+    # make sure that grunt and grunt-cli are installed locally
+    npm install gulp
+    echo "-----> Found Gulpfile, running gulp task"
+    $build_dir/node_modules/.bin/gulp
+  else
+    echo "-----> No Gulpfile.js found"
+  fi
+)
+
 # Post package.json to nomnom service
 # Use a subshell so failures won't break the build.
 (
